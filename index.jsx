@@ -54,6 +54,21 @@ function ChapterOne() {
     talkAudio.volume = 1;
 
     useEffect(() => {
+        const bgMusic = new Audio("/music/room-theme.mp3");
+        bgMusic.volume = 0.25;
+        bgMusic.loop = true;
+
+        bgMusic.play().catch(() => {
+            console.log("Music needs user interaction first");
+        });
+
+        return () => {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+        };
+    }, []);
+
+    useEffect(() => {
         let dotInterval;
         let typeInterval;
         let dotTimeout;
@@ -121,6 +136,8 @@ function ChapterOne() {
             <img src="/room.png" className="room-bg" />
 
             <img src="/erin.png" className="erin-character" />
+
+            <img src="/paw.png" className="clue1" />
 
             {/* Hidden clickable spots */}
 
