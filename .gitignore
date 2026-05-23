@@ -8,3 +8,9 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+
+# Mac files ignore we don't need them for windows
+node_modules/@rolldown/binding-darwin-arm64/
+node_modules/lightningcss-darwin-arm64/
+.DS_Store
+public/.DS_Store
