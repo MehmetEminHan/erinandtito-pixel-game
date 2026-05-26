@@ -4,13 +4,18 @@ import "./style.css";
 
 function App() {
     const [gameStarted, setGameStarted] = useState(false);
+    const [chapter, setChapter] = useState(1);
 
     return (
         <div className="game">
             {!gameStarted ? (
                 <StartScreen onStart={() => setGameStarted(true)} />
+            ) : chapter === 1 ? (
+                <ChapterOne onChapterComplete={() => setChapter("transition")} />
+            ) : chapter === "transition" ? (
+                <TransitionScreen onComplete={() => setChapter(2)} />
             ) : (
-                <ChapterOne />
+                <ChapterTwo />
             )}
         </div>
     );
@@ -28,16 +33,23 @@ function StartScreen({ onStart }) {
     );
 }
 
-function ChapterOne() {
-    const dialogues = [
+function ChapterOne({ onChapterComplete }) {
+    const normalDialogues = [
         "Oh, here you are, hey Erin, finally you woke up :)",
         "Oh, I totally forgot to tell you who I am",
-        "I would like to say I am Charlie and you are Emma but I can't",
-        "because I am brown Mehmet :((",
+        "I would like to say I am Charlie and you are Emma, but I can't",
+        "because I am brown, Mehmet :((",
         "Oh nooo!",
         "Tito is not at your apartment, where is he????",
-        "we should find him",
-        "Click the places to find a clue!"
+        "We should find him",
+        "Find the clue!"
+    ];
+
+    const clueDialogues = [
+        "Wait...",
+        "You found Tito's paw print!",
+        "He must have walked this way...",
+        "We should follow the clue."
     ];
 
     const [dialogueIndex, setDialogueIndex] = useState(0);
@@ -46,21 +58,14 @@ function ChapterOne() {
     const [loadingDots, setLoadingDots] = useState("");
     const [foundClue, setFoundClue] = useState(false);
 
-    //Developer debug mode to spam next button
-    const [debugMode, setDebugMode] = useState(true);
-
-    //Dialog sound
-    const talkAudio = new Audio("/sounds/talk.wav");
-    talkAudio.volume = 1;
+    const debugMode = true;
+    const activeDialogues = foundClue ? clueDialogues : normalDialogues;
 
     useEffect(() => {
         const bgMusic = new Audio("/music/room-theme.mp3");
         bgMusic.volume = 0.25;
         bgMusic.loop = true;
-
-        bgMusic.play().catch(() => {
-            console.log("Music needs user interaction first");
-        });
+        bgMusic.play().catch(() => {});
 
         return () => {
             bgMusic.pause();
@@ -72,16 +77,15 @@ function ChapterOne() {
         let dotInterval;
         let typeInterval;
         let dotTimeout;
+        const talkAudio = new Audio("/sounds/talk.wav");
+        talkAudio.volume = 1;
 
         setDisplayText("");
         setIsTyping(true);
         setLoadingDots(".");
 
         dotInterval = setInterval(() => {
-            setLoadingDots((prev) => {
-                if (prev === "...") return ".";
-                return prev + ".";
-            });
+            setLoadingDots((prev) => prev === "..." ? "." : prev + ".");
         }, 250);
 
         dotTimeout = setTimeout(() => {
@@ -89,10 +93,11 @@ function ChapterOne() {
             setLoadingDots("");
 
             let charIndex = 0;
-            const currentText = dialogues[dialogueIndex];
+            const currentText = activeDialogues[dialogueIndex];
 
             typeInterval = setInterval(() => {
                 setDisplayText(currentText.slice(0, charIndex + 1));
+
                 talkAudio.currentTime = 0;
                 talkAudio.play().catch(() => {});
 
@@ -100,8 +105,8 @@ function ChapterOne() {
 
                 if (charIndex >= currentText.length) {
                     clearInterval(typeInterval);
-                    setIsTyping(false);
                     talkAudio.pause();
+                    setIsTyping(false);
                 }
             }, 45);
         }, 700);
@@ -110,25 +115,27 @@ function ChapterOne() {
             clearInterval(dotInterval);
             clearInterval(typeInterval);
             clearTimeout(dotTimeout);
+            talkAudio.pause();
         };
-    }, [dialogueIndex]);
-
-
+    }, [dialogueIndex, foundClue]);
 
     function nextDialogue() {
         if (isTyping && !debugMode) return;
 
-        if (dialogueIndex === dialogues.length - 1 && !foundClue) {
+        if (!foundClue && dialogueIndex === normalDialogues.length - 1) {
             return;
         }
 
-        if (dialogueIndex < dialogues.length - 1) {
+        if (dialogueIndex < activeDialogues.length - 1) {
             setDialogueIndex(dialogueIndex + 1);
+        } else if (foundClue) {
+            onChapterComplete();
         }
     }
 
     function findClue() {
         setFoundClue(true);
+        setDialogueIndex(0);
     }
 
     return (
@@ -137,33 +144,10 @@ function ChapterOne() {
 
             <img src="/erin.png" className="erin-character" />
 
-            <img src="/paw.png" className="clue1" />
-
-            {/* Hidden clickable spots */}
-
-            <div className="hidden-spot spot1"></div>
-            <div className="hidden-spot spot2"></div>
-            <div className="hidden-spot spot3"></div>
-            <div className="hidden-spot spot4"></div>
-            <div className="hidden-spot spot5"></div>
-            <div className="hidden-spot spot6"></div>
-            <div className="hidden-spot spot7"></div>
-            <div className="hidden-spot spot8"></div>
-            <div className="hidden-spot spot9"></div>
-
-            {/* REAL CLUE */}
-
-            <button
-                className="hidden-spot real-clue"
-                onClick={findClue}
-            ></button>
-
-            {/* Clue notification */}
-
-            {foundClue && (
-                <div className="clue-found">
-                    Clue Found!
-                </div>
+            {!foundClue && (
+                <button className="paw-clue-button" onClick={findClue}>
+                    <img src="/paw.png" className="clue1" />
+                </button>
             )}
 
             <div className="dialogue-container">
@@ -178,7 +162,7 @@ function ChapterOne() {
                     onClick={nextDialogue}
                     disabled={
                         (!debugMode && isTyping) ||
-                        (dialogueIndex === dialogues.length - 1 && !foundClue)
+                        (!foundClue && dialogueIndex === normalDialogues.length - 1)
                     }
                 >
                     NEXT
@@ -188,5 +172,156 @@ function ChapterOne() {
     );
 }
 
+function TransitionScreen({ onComplete }) {
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            onComplete();
+        }, 3500);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    return (
+        <div className="transition-screen">
+            <div className="transition-text">
+                Erin follows Tito's paw print outside...
+            </div>
+        </div>
+    );
+}
+
+function ChapterTwo({ onChapterComplete }) {
+    const normalDialogues = [
+        "This is interesting, where are we?",
+        "Do you have any guess where are we?",
+        "Wow we are at the NJ rock GYM but why Tito is here lol"
+    ];
+
+    const clueDialogues = [
+        "Wait...",
+        "You found Tito's paw print!",
+        "He must have walked this way...",
+        "We should follow the clue."
+    ];
+
+    const [dialogueIndex, setDialogueIndex] = useState(0);
+    const [displayText, setDisplayText] = useState("");
+    const [isTyping, setIsTyping] = useState(false);
+    const [loadingDots, setLoadingDots] = useState("");
+    const [foundClue, setFoundClue] = useState(false);
+
+    const debugMode = true;
+    const activeDialogues = foundClue ? clueDialogues : normalDialogues;
+
+    useEffect(() => {
+        const bgMusic = new Audio("/music/room-theme.mp3");
+        bgMusic.volume = 0.25;
+        bgMusic.loop = true;
+        bgMusic.play().catch(() => {});
+
+        return () => {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+        };
+    }, []);
+
+    useEffect(() => {
+        let dotInterval;
+        let typeInterval;
+        let dotTimeout;
+        const talkAudio = new Audio("/sounds/talk.wav");
+        talkAudio.volume = 1;
+
+        setDisplayText("");
+        setIsTyping(true);
+        setLoadingDots(".");
+
+        dotInterval = setInterval(() => {
+            setLoadingDots((prev) => prev === "..." ? "." : prev + ".");
+        }, 250);
+
+        dotTimeout = setTimeout(() => {
+            clearInterval(dotInterval);
+            setLoadingDots("");
+
+            let charIndex = 0;
+            const currentText = activeDialogues[dialogueIndex];
+
+            typeInterval = setInterval(() => {
+                setDisplayText(currentText.slice(0, charIndex + 1));
+
+                talkAudio.currentTime = 0;
+                talkAudio.play().catch(() => {});
+
+                charIndex++;
+
+                if (charIndex >= currentText.length) {
+                    clearInterval(typeInterval);
+                    talkAudio.pause();
+                    setIsTyping(false);
+                }
+            }, 45);
+        }, 700);
+
+        return () => {
+            clearInterval(dotInterval);
+            clearInterval(typeInterval);
+            clearTimeout(dotTimeout);
+            talkAudio.pause();
+        };
+    }, [dialogueIndex, foundClue]);
+
+    function nextDialogue() {
+        if (isTyping && !debugMode) return;
+
+        if (!foundClue && dialogueIndex === normalDialogues.length - 1) {
+            return;
+        }
+
+        if (dialogueIndex < activeDialogues.length - 1) {
+            setDialogueIndex(dialogueIndex + 1);
+        } else if (foundClue) {
+            onChapterComplete();
+        }
+    }
+
+    function findClue() {
+        setFoundClue(true);
+        setDialogueIndex(0);
+    }
+
+    return (
+        <div className="chapter-one">
+            <img src="/climbing_gym.png" className="room-bg" />
+
+            <img src="/erin.png" className="erin-character-chapter-two" />
+
+            {!foundClue && (
+                <button className="paw-clue-button" onClick={findClue}>
+                    <img src="/paw.png" className="clue1" />
+                </button>
+            )}
+
+            <div className="dialogue-container">
+                <img src="/dialogue.png" className="dialogue-image" />
+
+                <div className="dialogue-text">
+                    {loadingDots || displayText}
+                </div>
+
+                <button
+                    className="next-button"
+                    onClick={nextDialogue}
+                    disabled={
+                        (!debugMode && isTyping) ||
+                        (!foundClue && dialogueIndex === normalDialogues.length - 1)
+                    }
+                >
+                    NEXT
+                </button>
+            </div>
+        </div>
+    );
+}
 
 createRoot(document.getElementById("root")).render(<App />);
