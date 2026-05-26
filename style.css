@@ -94,9 +94,9 @@ body,
 .erin-character-chapter-two {
     position: absolute;
 
-    width: 330px;
+    width: 280px;
 
-    left: 15%;
+    left: 50%;
     top: 56%;
 
     transform: translate(-50%, -50%);
@@ -110,12 +110,12 @@ body,
     position: fixed;
 
     left: 50%;
-    bottom: -100px; /* daha aşağı indirir */
+    bottom: -160px; /* daha aşağı indirir */
 
     transform: translateX(-50%);
 
     width: 60%;
-    height: 45%;
+    height: 70%;
 
     z-index: 999;
 }
@@ -312,6 +312,21 @@ body,
 
     left: 35%;
     top: 33%;
+
+    transform: translate(-50%, -50%);
+
+    image-rendering: pixelated;
+
+    animation: breathing 3s ease-in-out infinite;
+}
+
+.clue1-chapter-two {
+    position: absolute;
+
+    width: 40px;
+
+    left: 54%;
+    top: 6%;
 
     transform: translate(-50%, -50%);
 

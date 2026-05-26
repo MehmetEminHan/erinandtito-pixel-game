@@ -192,16 +192,19 @@ function TransitionScreen({ onComplete }) {
 
 function ChapterTwo({ onChapterComplete }) {
     const normalDialogues = [
-        "This is interesting, where are we?",
-        "Do you have any guess where are we?",
-        "Wow we are at the NJ rock GYM but why Tito is here lol"
+        "Tito's paw prints end here...",
+        "Hmm, do you have any idea where we are?",
+        "Yep, that is correct, we are at the NJ Rock Climbing Gym",
+        "This is the place we met each other first time",
+        "But why was Tito here?",
+        "I think we should find the next his paw."
     ];
 
     const clueDialogues = [
         "Wait...",
-        "You found Tito's paw print!",
-        "He must have walked this way...",
-        "We should follow the clue."
+        "You found Tito's paw print again!",
+        "Damn girl you are doing great!",
+        "We should follow the next clue. Let's gooooo!"
     ];
 
     const [dialogueIndex, setDialogueIndex] = useState(0);
@@ -292,13 +295,13 @@ function ChapterTwo({ onChapterComplete }) {
 
     return (
         <div className="chapter-one">
-            <img src="/climbing_gym.png" className="room-bg" />
+            <img src="/climbing-gym.png" className="room-bg" />
 
-            <img src="/erin.png" className="erin-character-chapter-two" />
+            <img src="/erin-front.png" className="erin-character-chapter-two" />
 
             {!foundClue && (
                 <button className="paw-clue-button" onClick={findClue}>
-                    <img src="/paw.png" className="clue1" />
+                    <img src="/paw.png" className="clue1-chapter-two" />
                 </button>
             )}
 
