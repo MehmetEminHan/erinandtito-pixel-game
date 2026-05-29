@@ -742,6 +742,128 @@ function ChapterFive({ onChapterComplete }) {
     );
 }
 
+function FinalChapter({ onChapterComplete }) {
+    const normalDialogues = [
+        "Wow, look at this view.",
+        "I knew it, he brought us on purpose",
+        "Such a nice view huh.",
+        "You know what Erin ",
+        "Tito and I planned everything :)",
+        "I hope you like this mini game that I made only for you and Tito <3",
+        "I told you I am a .... wait what is this.",
+        "Looks like Tito has something to give you",
+        "It is a letter..."
+    ];
 
+    const [showLetter, setShowLetter] = useState(false);
+    const [dialogueIndex, setDialogueIndex] = useState(0);
+    const [displayText, setDisplayText] = useState("");
+    const [isTyping, setIsTyping] = useState(false);
+    const [loadingDots, setLoadingDots] = useState("");
+
+    const debugMode = true;
+
+    useEffect(() => {
+        const bgMusic = new Audio("/music/chapter-final.mp3");
+        bgMusic.volume = 0.25;
+        bgMusic.loop = true;
+        bgMusic.play().catch(() => {});
+
+        return () => {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+        };
+    }, []);
+
+    useEffect(() => {
+        let dotInterval;
+        let typeInterval;
+        let dotTimeout;
+
+        const talkAudio = new Audio("/sounds/talk.wav");
+        talkAudio.volume = 1;
+
+        setDisplayText("");
+        setIsTyping(true);
+        setLoadingDots(".");
+
+        dotInterval = setInterval(() => {
+            setLoadingDots((prev) => prev === "..." ? "." : prev + ".");
+        }, 250);
+
+        dotTimeout = setTimeout(() => {
+            clearInterval(dotInterval);
+            setLoadingDots("");
+
+            let charIndex = 0;
+            const currentText = normalDialogues[dialogueIndex];
+
+            typeInterval = setInterval(() => {
+                setDisplayText(currentText.slice(0, charIndex + 1));
+
+                talkAudio.currentTime = 0;
+                talkAudio.play().catch(() => {});
+
+                charIndex++;
+
+                if (charIndex >= currentText.length) {
+                    clearInterval(typeInterval);
+                    talkAudio.pause();
+                    setIsTyping(false);
+                }
+            }, 45);
+        }, 700);
+
+        return () => {
+            clearInterval(dotInterval);
+            clearInterval(typeInterval);
+            clearTimeout(dotTimeout);
+            talkAudio.pause();
+        };
+    }, [dialogueIndex]);
+
+    function nextDialogue() {
+        if (isTyping && !debugMode) return;
+
+        if (dialogueIndex < normalDialogues.length - 1) {
+            setDialogueIndex(dialogueIndex + 1);
+        } else {
+            setShowLetter(true);
+        }
+    }
+
+    if (showLetter) {
+        return (
+            <div className="letter-fullscreen">
+                <img
+                    src="/letter.png"
+                    className="letter-image"
+                />
+            </div>
+        );
+    }
+
+    return (
+        <div className="chapter-one">
+            <img src="/last_view.png" className="room-bg" />
+
+            <div className="dialogue-container">
+
+
+                <div className="dialogue-text">
+                    {loadingDots || displayText}
+                </div>
+
+                <button
+                    className="next-button"
+                    onClick={nextDialogue}
+                    disabled={isTyping && !debugMode}
+                >
+                    NEXT
+                </button>
+            </div>
+        </div>
+    );
+}
 
 createRoot(document.getElementById("root")).render(<App />);
