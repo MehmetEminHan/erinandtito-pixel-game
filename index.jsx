@@ -28,13 +28,22 @@ function App() {
                 <ChapterThree onChapterComplete={() => setChapter("transition3")} />
             ) : chapter === "transition3" ? (
                 <TransitionScreen
-                    text="The trail led Erin through the city... and straight to the smell of fresh bread."
+                    text="CHAPTER 4 - The trail led Erin through the city..."
                     onComplete={() => setChapter(4)}
                 />
             ) : chapter === 4 ? (
                 <ChapterFour onChapterComplete={() => setChapter("transition4")} />
+            ) : chapter === "transition4" ? (
+                <TransitionScreen
+                    text="CHAPTER 5 - The receipt mentioned something about stars..."
+                    onComplete={() => setChapter(5)}
+                />
+            ) : chapter === 5 ? (
+                <ChapterFive onChapterComplete={() => setChapter("final")} />
+            ) : chapter === "final" ? (
+                <FinalChapter />
             ) : (
-                <ChapterFive />
+                <Ending />
             )}
         </div>
     );
@@ -214,7 +223,7 @@ function ChapterTwo({ onChapterComplete }) {
         "Tito's paw prints end here...",
         "Hmm, do you have any idea where we are?",
         "Yep, that is correct, we are at the NJ Rock Climbing Gym",
-        "This is the place we met each other first time",
+        "This is the place we met each other first time <3",
         "But why was Tito here?",
         "I think we should find the next his paw."
     ];
@@ -624,5 +633,115 @@ function ChapterFour({ onChapterComplete }) {
         </div>
     );
 }
+
+function ChapterFive({ onChapterComplete }) {
+    const normalDialogues = [
+        "Wait...",
+        "Hahahaha, we found him.",
+        "He is hungry as always lol.",
+        "Oh no, he is running upstairs!",
+        "Hurry up, we should catch him."
+    ];
+
+    const [dialogueIndex, setDialogueIndex] = useState(0);
+    const [displayText, setDisplayText] = useState("");
+    const [isTyping, setIsTyping] = useState(false);
+    const [loadingDots, setLoadingDots] = useState("");
+
+    const debugMode = true;
+
+    useEffect(() => {
+        const bgMusic = new Audio("/music/chapter5.mp3");
+        bgMusic.volume = 0.25;
+        bgMusic.loop = true;
+        bgMusic.play().catch(() => {});
+
+        return () => {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+        };
+    }, []);
+
+    useEffect(() => {
+        let dotInterval;
+        let typeInterval;
+        let dotTimeout;
+
+        const talkAudio = new Audio("/sounds/talk.wav");
+        talkAudio.volume = 1;
+
+        setDisplayText("");
+        setIsTyping(true);
+        setLoadingDots(".");
+
+        dotInterval = setInterval(() => {
+            setLoadingDots((prev) => prev === "..." ? "." : prev + ".");
+        }, 250);
+
+        dotTimeout = setTimeout(() => {
+            clearInterval(dotInterval);
+            setLoadingDots("");
+
+            let charIndex = 0;
+            const currentText = normalDialogues[dialogueIndex];
+
+            typeInterval = setInterval(() => {
+                setDisplayText(currentText.slice(0, charIndex + 1));
+
+                talkAudio.currentTime = 0;
+                talkAudio.play().catch(() => {});
+
+                charIndex++;
+
+                if (charIndex >= currentText.length) {
+                    clearInterval(typeInterval);
+                    talkAudio.pause();
+                    setIsTyping(false);
+                }
+            }, 45);
+        }, 700);
+
+        return () => {
+            clearInterval(dotInterval);
+            clearInterval(typeInterval);
+            clearTimeout(dotTimeout);
+            talkAudio.pause();
+        };
+    }, [dialogueIndex]);
+
+    function nextDialogue() {
+        if (isTyping && !debugMode) return;
+
+        if (dialogueIndex < normalDialogues.length - 1) {
+            setDialogueIndex(dialogueIndex + 1);
+        } else {
+            onChapterComplete();
+        }
+    }
+
+    return (
+        <div className="chapter-one">
+            <img src="/titos_feeder.png" className="room-bg" />
+
+            <div className="dialogue-container">
+                <img src="/dialogue.png" className="dialogue-image" />
+
+                <div className="dialogue-text">
+                    {loadingDots || displayText}
+                </div>
+
+                <button
+                    className="next-button"
+                    onClick={nextDialogue}
+                    disabled={isTyping && !debugMode}
+                >
+                    NEXT
+                </button>
+            </div>
+        </div>
+    );
+}
+
+
 
 createRoot(document.getElementById("root")).render(<App />);
