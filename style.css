@@ -79,7 +79,7 @@ body,
 .erin-character {
     position: absolute;
 
-    width: 330px;
+    width: 600px;
 
     left: 50%;
     top: 56%;
@@ -109,7 +109,7 @@ body,
 .erin-character-chapter-four {
     position: absolute;
 
-    width: 280px;
+    width: 400px;
 
     left: 7%;
     top: 56%;
@@ -368,9 +368,9 @@ body,
 .clue1-chapter-four {
     position: absolute;
 
-    width: 50px;
+    width: 100px;
 
-    left: 80%;
+    left: 85%;
     top: 60%;
 
     transform: translate(-50%, -50%);

@@ -50,11 +50,16 @@ function App() {
 }
 
 function StartScreen({ onStart }) {
+    function startGame() {
+        document.documentElement.requestFullscreen().catch(() => {});
+        onStart();
+    }
+
     return (
         <div className="start-screen">
             <img src="/start.png" className="start-bg" />
 
-            <button className="start-button" onClick={onStart}>
+            <button className="start-button" onClick={startGame}>
                 START GAME
             </button>
         </div>
@@ -64,6 +69,7 @@ function StartScreen({ onStart }) {
 function ChapterOne({ onChapterComplete }) {
     const normalDialogues = [
         "Oh, here you are, hey Erin, finally you woke up :)",
+        "The message box Erin looks little brown but I did that on purpose lol hahaha you are brown in my game world anyway.. :D",
         "Oh, I totally forgot to tell you who I am",
         "I would like to say I am Charlie and you are Emma, but I can't",
         "because I am brown, Mehmet :((",
@@ -724,8 +730,6 @@ function ChapterFive({ onChapterComplete }) {
             <img src="/titos_feeder.png" className="room-bg" />
 
             <div className="dialogue-container">
-                <img src="/dialogue.png" className="dialogue-image" />
-
                 <div className="dialogue-text">
                     {loadingDots || displayText}
                 </div>
