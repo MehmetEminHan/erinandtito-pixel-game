@@ -86,7 +86,7 @@ function ChapterOne({ onChapterComplete }) {
     const [loadingDots, setLoadingDots] = useState("");
     const [foundClue, setFoundClue] = useState(false);
 
-    const debugMode = true;
+    const debugMode = false;
     const activeDialogues = foundClue ? clueDialogues : normalDialogues;
 
     useEffect(() => {
@@ -223,7 +223,7 @@ function ChapterTwo({ onChapterComplete }) {
         "Tito's paw prints end here...",
         "Hmm, do you have any idea where we are?",
         "Yep, that is correct, we are at the NJ Rock Climbing Gym",
-        "This is the place we met each other first time <3",
+        "This is the place we met each other first time ❤️",
         "But why was Tito here?",
         "I think we should find the next his paw."
     ];
@@ -241,7 +241,7 @@ function ChapterTwo({ onChapterComplete }) {
     const [loadingDots, setLoadingDots] = useState("");
     const [foundClue, setFoundClue] = useState(false);
 
-    const debugMode = true;
+    const debugMode = false;
     const activeDialogues = foundClue ? clueDialogues : normalDialogues;
 
     useEffect(() => {
@@ -378,7 +378,7 @@ function ChapterThree({ onChapterComplete }) {
     const [loadingDots, setLoadingDots] = useState("");
     const [foundClue, setFoundClue] = useState(false);
 
-    const debugMode = true;
+    const debugMode = false;
     const activeDialogues = foundClue ? clueDialogues : normalDialogues;
 
     useEffect(() => {
@@ -520,7 +520,7 @@ function ChapterFour({ onChapterComplete }) {
     const [loadingDots, setLoadingDots] = useState("");
     const [foundClue, setFoundClue] = useState(false);
 
-    const debugMode = true;
+    const debugMode = false;
     const activeDialogues = foundClue ? clueDialogues : normalDialogues;
 
     useEffect(() => {
@@ -637,8 +637,8 @@ function ChapterFour({ onChapterComplete }) {
 function ChapterFive({ onChapterComplete }) {
     const normalDialogues = [
         "Wait...",
-        "Hahahaha, we found him.",
-        "He is hungry as always lol.",
+        "Hahahaha, we found him ❤️❤️❤️❤️",
+        "He is hungry as always lol ❤️",
         "Oh no, he is running upstairs!",
         "Hurry up, we should catch him."
     ];
@@ -648,7 +648,7 @@ function ChapterFive({ onChapterComplete }) {
     const [isTyping, setIsTyping] = useState(false);
     const [loadingDots, setLoadingDots] = useState("");
 
-    const debugMode = true;
+    const debugMode = false;
 
     useEffect(() => {
         const bgMusic = new Audio("/music/chapter5.mp3");
@@ -748,7 +748,7 @@ function FinalChapter({ onChapterComplete }) {
         "I knew it, he brought us on purpose",
         "Such a nice view huh.",
         "You know what Erin ",
-        "Tito and I planned everything :)",
+        "Tito and I planned everything :) ❤️",
         "I hope you like this mini game that I made only for you and Tito <3",
         "I told you I am a .... wait what is this.",
         "Looks like Tito has something to give you",
@@ -761,7 +761,7 @@ function FinalChapter({ onChapterComplete }) {
     const [isTyping, setIsTyping] = useState(false);
     const [loadingDots, setLoadingDots] = useState("");
 
-    const debugMode = true;
+    const debugMode = false;
 
     useEffect(() => {
         const bgMusic = new Audio("/music/chapter-final.mp3");
