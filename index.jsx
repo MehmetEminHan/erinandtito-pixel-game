@@ -11,11 +11,21 @@ function App() {
             {!gameStarted ? (
                 <StartScreen onStart={() => setGameStarted(true)} />
             ) : chapter === 1 ? (
-                <ChapterOne onChapterComplete={() => setChapter("transition")} />
-            ) : chapter === "transition" ? (
-                <TransitionScreen onComplete={() => setChapter(2)} />
+                <ChapterOne onChapterComplete={() => setChapter("transition1")} />
+            ) : chapter === "transition1" ? (
+                <TransitionScreen
+                    text="CHAPTER 2 - Erin followed the paw print..."
+                    onComplete={() => setChapter(2)}
+                />
+            ) : chapter === 2 ? (
+                <ChapterTwo onChapterComplete={() => setChapter("transition2")} />
+            ) : chapter === "transition2" ? (
+                <TransitionScreen
+                    text="CHAPTER 3 - Erin is getting closer to Tito.."
+                    onComplete={() => setChapter(3)}
+                />
             ) : (
-                <ChapterTwo />
+                <ChapterThree />
             )}
         </div>
     );
@@ -172,7 +182,7 @@ function ChapterOne({ onChapterComplete }) {
     );
 }
 
-function TransitionScreen({ onComplete }) {
+function TransitionScreen({ text, onComplete }) {
     useEffect(() => {
         const timer = setTimeout(() => {
             onComplete();
@@ -184,7 +194,7 @@ function TransitionScreen({ onComplete }) {
     return (
         <div className="transition-screen">
             <div className="transition-text">
-                Erin follows Tito's paw print outside...
+                {text}
             </div>
         </div>
     );
@@ -217,7 +227,7 @@ function ChapterTwo({ onChapterComplete }) {
     const activeDialogues = foundClue ? clueDialogues : normalDialogues;
 
     useEffect(() => {
-        const bgMusic = new Audio("/music/room-theme.mp3");
+        const bgMusic = new Audio("/music/chapter2.mp3");
         bgMusic.volume = 0.25;
         bgMusic.loop = true;
         bgMusic.play().catch(() => {});
@@ -296,6 +306,143 @@ function ChapterTwo({ onChapterComplete }) {
     return (
         <div className="chapter-one">
             <img src="/climbing-gym.png" className="room-bg" />
+
+            <img src="/erin-front.png" className="erin-character-chapter-two" />
+
+            {!foundClue && (
+                <button className="paw-clue-button" onClick={findClue}>
+                    <img src="/paw.png" className="clue1-chapter-two" />
+                </button>
+            )}
+
+            <div className="dialogue-container">
+                <img src="/dialogue.png" className="dialogue-image" />
+
+                <div className="dialogue-text">
+                    {loadingDots || displayText}
+                </div>
+
+                <button
+                    className="next-button"
+                    onClick={nextDialogue}
+                    disabled={
+                        (!debugMode && isTyping) ||
+                        (!foundClue && dialogueIndex === normalDialogues.length - 1)
+                    }
+                >
+                    NEXT
+                </button>
+            </div>
+        </div>
+    );
+}
+
+function ChapterThree({ onChapterComplete }) {
+    const normalDialogues = [
+        "We are at the theater ?!",
+        "But still I don't see Tito",
+        "Why was he here?",
+        "HAHAHA Erin, look at the posters!",
+        "But why was Tito here?",
+        "I think we should find the next his paw."
+    ];
+
+    const clueDialogues = [
+        "Wait...",
+        "You found Tito's paw print again!",
+        "I feel we are so close to find him.",
+        "Let's gooooo!"
+    ];
+
+    const [dialogueIndex, setDialogueIndex] = useState(0);
+    const [displayText, setDisplayText] = useState("");
+    const [isTyping, setIsTyping] = useState(false);
+    const [loadingDots, setLoadingDots] = useState("");
+    const [foundClue, setFoundClue] = useState(false);
+
+    const debugMode = true;
+    const activeDialogues = foundClue ? clueDialogues : normalDialogues;
+
+    useEffect(() => {
+        const bgMusic = new Audio("/music/chapter3.mp3");
+        bgMusic.volume = 0.25;
+        bgMusic.loop = true;
+        bgMusic.play().catch(() => {});
+
+        return () => {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+        };
+    }, []);
+
+    useEffect(() => {
+        let dotInterval;
+        let typeInterval;
+        let dotTimeout;
+        const talkAudio = new Audio("/sounds/talk.wav");
+        talkAudio.volume = 1;
+
+        setDisplayText("");
+        setIsTyping(true);
+        setLoadingDots(".");
+
+        dotInterval = setInterval(() => {
+            setLoadingDots((prev) => prev === "..." ? "." : prev + ".");
+        }, 250);
+
+        dotTimeout = setTimeout(() => {
+            clearInterval(dotInterval);
+            setLoadingDots("");
+
+            let charIndex = 0;
+            const currentText = activeDialogues[dialogueIndex];
+
+            typeInterval = setInterval(() => {
+                setDisplayText(currentText.slice(0, charIndex + 1));
+
+                talkAudio.currentTime = 0;
+                talkAudio.play().catch(() => {});
+
+                charIndex++;
+
+                if (charIndex >= currentText.length) {
+                    clearInterval(typeInterval);
+                    talkAudio.pause();
+                    setIsTyping(false);
+                }
+            }, 45);
+        }, 700);
+
+        return () => {
+            clearInterval(dotInterval);
+            clearInterval(typeInterval);
+            clearTimeout(dotTimeout);
+            talkAudio.pause();
+        };
+    }, [dialogueIndex, foundClue]);
+
+    function nextDialogue() {
+        if (isTyping && !debugMode) return;
+
+        if (!foundClue && dialogueIndex === normalDialogues.length - 1) {
+            return;
+        }
+
+        if (dialogueIndex < activeDialogues.length - 1) {
+            setDialogueIndex(dialogueIndex + 1);
+        } else if (foundClue) {
+            onChapterComplete();
+        }
+    }
+
+    function findClue() {
+        setFoundClue(true);
+        setDialogueIndex(0);
+    }
+
+    return (
+        <div className="chapter-one">
+            <img src="/movie_theater.png" className="room-bg" />
 
             <img src="/erin-front.png" className="erin-character-chapter-two" />
 
