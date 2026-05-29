@@ -21,11 +21,20 @@ function App() {
                 <ChapterTwo onChapterComplete={() => setChapter("transition2")} />
             ) : chapter === "transition2" ? (
                 <TransitionScreen
-                    text="CHAPTER 3 - Erin is getting closer to Tito.."
+                    text="CHAPTER 3 - Erin is getting closer to Tito..."
                     onComplete={() => setChapter(3)}
                 />
+            ) : chapter === 3 ? (
+                <ChapterThree onChapterComplete={() => setChapter("transition3")} />
+            ) : chapter === "transition3" ? (
+                <TransitionScreen
+                    text="The trail led Erin through the city... and straight to the smell of fresh bread."
+                    onComplete={() => setChapter(4)}
+                />
+            ) : chapter === 4 ? (
+                <ChapterFour onChapterComplete={() => setChapter("transition4")} />
             ) : (
-                <ChapterThree />
+                <ChapterFive />
             )}
         </div>
     );
@@ -449,6 +458,148 @@ function ChapterThree({ onChapterComplete }) {
             {!foundClue && (
                 <button className="paw-clue-button" onClick={findClue}>
                     <img src="/paw.png" className="clue1-chapter-two" />
+                </button>
+            )}
+
+            <div className="dialogue-container">
+                <img src="/dialogue.png" className="dialogue-image" />
+
+                <div className="dialogue-text">
+                    {loadingDots || displayText}
+                </div>
+
+                <button
+                    className="next-button"
+                    onClick={nextDialogue}
+                    disabled={
+                        (!debugMode && isTyping) ||
+                        (!foundClue && dialogueIndex === normalDialogues.length - 1)
+                    }
+                >
+                    NEXT
+                </button>
+            </div>
+        </div>
+    );
+}
+
+function ChapterFour({ onChapterComplete }) {
+    const normalDialogues = [
+        "Wait...",
+        "This is Sultan Bakery!",
+        "The greatest bakery in New Jersey.",
+        "At least according to Mehmet. lol",
+        "Look all these baklava and turkish delight (lokum<3)",
+        "Tito always gets excited when we come here.",
+        "Maybe somebody saw him.",
+        "Let's look around."
+    ];
+
+    const clueDialogues = [
+        "Another paw print!",
+        "Wait a second...",
+        "There is a receipt next to it.",
+        "It says: '1 Simit, 1 Acma, 1 Mystery Item'.",
+        "Tito definitely left this on purpose.",
+        "Let's follow the trail.",
+        "Let's go downstairs!"
+    ];
+
+    const [dialogueIndex, setDialogueIndex] = useState(0);
+    const [displayText, setDisplayText] = useState("");
+    const [isTyping, setIsTyping] = useState(false);
+    const [loadingDots, setLoadingDots] = useState("");
+    const [foundClue, setFoundClue] = useState(false);
+
+    const debugMode = true;
+    const activeDialogues = foundClue ? clueDialogues : normalDialogues;
+
+    useEffect(() => {
+        const bgMusic = new Audio("/music/chapter4.mp3");
+        bgMusic.volume = 0.25;
+        bgMusic.loop = true;
+        bgMusic.play().catch(() => {});
+
+        return () => {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+        };
+    }, []);
+
+    useEffect(() => {
+        let dotInterval;
+        let typeInterval;
+        let dotTimeout;
+        const talkAudio = new Audio("/sounds/talk.wav");
+        talkAudio.volume = 1;
+
+        setDisplayText("");
+        setIsTyping(true);
+        setLoadingDots(".");
+
+        dotInterval = setInterval(() => {
+            setLoadingDots((prev) => prev === "..." ? "." : prev + ".");
+        }, 250);
+
+        dotTimeout = setTimeout(() => {
+            clearInterval(dotInterval);
+            setLoadingDots("");
+
+            let charIndex = 0;
+            const currentText = activeDialogues[dialogueIndex];
+
+            typeInterval = setInterval(() => {
+                setDisplayText(currentText.slice(0, charIndex + 1));
+
+                talkAudio.currentTime = 0;
+                talkAudio.play().catch(() => {});
+
+                charIndex++;
+
+                if (charIndex >= currentText.length) {
+                    clearInterval(typeInterval);
+                    talkAudio.pause();
+                    setIsTyping(false);
+                }
+            }, 45);
+        }, 700);
+
+        return () => {
+            clearInterval(dotInterval);
+            clearInterval(typeInterval);
+            clearTimeout(dotTimeout);
+            talkAudio.pause();
+        };
+    }, [dialogueIndex, foundClue]);
+
+    function nextDialogue() {
+        if (isTyping && !debugMode) return;
+
+        if (!foundClue && dialogueIndex === normalDialogues.length - 1) {
+            return;
+        }
+
+        if (dialogueIndex < activeDialogues.length - 1) {
+            setDialogueIndex(dialogueIndex + 1);
+        } else if (foundClue) {
+            onChapterComplete();
+        }
+    }
+
+    function findClue() {
+        setFoundClue(true);
+        setDialogueIndex(0);
+    }
+
+    return (
+        <div className="chapter-one">
+            <img src="/sultan_bakery.png" className="room-bg" />
+
+            <img src="/erin-front.png" className="erin-character-chapter-four" />
+
+            {!foundClue && (
+                <button className="paw-clue-button" onClick={findClue}>
+                    <img src="/paw.png" className="clue1-chapter-four" />
                 </button>
             )}
 
